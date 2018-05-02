@@ -1,0 +1,262 @@
+============================= test session starts =============================
+platform win32 -- Python 3.6.4, pytest-3.5.1, py-1.5.3, pluggy-0.6.0
+rootdir: C:\Users\Ola\PycharmProjects\python_traning, inifile:
+collected 1 item
+
+test_add_group.py F                                                      [100%]
+
+================================== FAILURES ===================================
+_____________________ test_add_group.test_test_add_group ______________________
+
+self = <selenium.webdriver.firefox.service.Service object at 0x03A17C50>
+
+    def start(self):
+        """
+            Starts the Service.
+    
+            :Exceptions:
+             - WebDriverException : Raised either when it can't start the service
+               or when it can't connect to the service
+            """
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+            self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != 'Windows',
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+>                                           stdin=PIPE)
+
+env\lib\site-packages\selenium\webdriver\common\service.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <subprocess.Popen object at 0x03A17D90>
+args = ['geckodriver', '--port', '50806'], bufsize = -1, executable = None
+stdin = -1
+stdout = <_io.TextIOWrapper name='geckodriver.log' mode='a+' encoding='cp1250'>
+stderr = <_io.TextIOWrapper name='geckodriver.log' mode='a+' encoding='cp1250'>
+preexec_fn = None, close_fds = False, shell = False, cwd = None
+env = environ({'ALLUSERSPROFILE': 'C:\\ProgramData', 'APPDATA': 'C:\\Users\\Ola\\AppData\\Roaming', 'ASL.LOG': 'Destination=...'_OLD_VIRTUAL_PROMPT': '$P$G', 'PYTEST_CURRENT_TEST': 'test_add_group.py::test_add_group::test_test_add_group (call)'})
+universal_newlines = False, startupinfo = None, creationflags = 0
+restore_signals = True, start_new_session = False, pass_fds = ()
+
+    def __init__(self, args, bufsize=-1, executable=None,
+                 stdin=None, stdout=None, stderr=None,
+                 preexec_fn=None, close_fds=_PLATFORM_DEFAULT_CLOSE_FDS,
+                 shell=False, cwd=None, env=None, universal_newlines=False,
+                 startupinfo=None, creationflags=0,
+                 restore_signals=True, start_new_session=False,
+                 pass_fds=(), *, encoding=None, errors=None):
+        """Create new Popen instance."""
+        _cleanup()
+        # Held while anything is calling waitpid before returncode has been
+        # updated to prevent clobbering returncode if wait() or poll() are
+        # called from multiple threads at once.  After acquiring the lock,
+        # code must re-check self.returncode to see if another thread just
+        # finished a waitpid() call.
+        self._waitpid_lock = threading.Lock()
+    
+        self._input = None
+        self._communication_started = False
+        if bufsize is None:
+            bufsize = -1  # Restore default
+        if not isinstance(bufsize, int):
+            raise TypeError("bufsize must be an integer")
+    
+        if _mswindows:
+            if preexec_fn is not None:
+                raise ValueError("preexec_fn is not supported on Windows "
+                                 "platforms")
+            any_stdio_set = (stdin is not None or stdout is not None or
+                             stderr is not None)
+            if close_fds is _PLATFORM_DEFAULT_CLOSE_FDS:
+                if any_stdio_set:
+                    close_fds = False
+                else:
+                    close_fds = True
+            elif close_fds and any_stdio_set:
+                raise ValueError(
+                        "close_fds is not supported on Windows platforms"
+                        " if you redirect stdin/stdout/stderr")
+        else:
+            # POSIX
+            if close_fds is _PLATFORM_DEFAULT_CLOSE_FDS:
+                close_fds = True
+            if pass_fds and not close_fds:
+                warnings.warn("pass_fds overriding close_fds.", RuntimeWarning)
+                close_fds = True
+            if startupinfo is not None:
+                raise ValueError("startupinfo is only supported on Windows "
+                                 "platforms")
+            if creationflags != 0:
+                raise ValueError("creationflags is only supported on Windows "
+                                 "platforms")
+    
+        self.args = args
+        self.stdin = None
+        self.stdout = None
+        self.stderr = None
+        self.pid = None
+        self.returncode = None
+        self.universal_newlines = universal_newlines
+        self.encoding = encoding
+        self.errors = errors
+    
+        # Input and output objects. The general principle is like
+        # this:
+        #
+        # Parent                   Child
+        # ------                   -----
+        # p2cwrite   ---stdin--->  p2cread
+        # c2pread    <--stdout---  c2pwrite
+        # errread    <--stderr---  errwrite
+        #
+        # On POSIX, the child objects are file descriptors.  On
+        # Windows, these are Windows file handles.  The parent objects
+        # are file descriptors on both platforms.  The parent objects
+        # are -1 when not using PIPEs. The child objects are -1
+        # when not redirecting.
+    
+        (p2cread, p2cwrite,
+         c2pread, c2pwrite,
+         errread, errwrite) = self._get_handles(stdin, stdout, stderr)
+    
+        # We wrap OS handles *before* launching the child, otherwise a
+        # quickly terminating child could make our fds unwrappable
+        # (see #8458).
+    
+        if _mswindows:
+            if p2cwrite != -1:
+                p2cwrite = msvcrt.open_osfhandle(p2cwrite.Detach(), 0)
+            if c2pread != -1:
+                c2pread = msvcrt.open_osfhandle(c2pread.Detach(), 0)
+            if errread != -1:
+                errread = msvcrt.open_osfhandle(errread.Detach(), 0)
+    
+        text_mode = encoding or errors or universal_newlines
+    
+        self._closed_child_pipe_fds = False
+    
+        try:
+            if p2cwrite != -1:
+                self.stdin = io.open(p2cwrite, 'wb', bufsize)
+                if text_mode:
+                    self.stdin = io.TextIOWrapper(self.stdin, write_through=True,
+                            line_buffering=(bufsize == 1),
+                            encoding=encoding, errors=errors)
+            if c2pread != -1:
+                self.stdout = io.open(c2pread, 'rb', bufsize)
+                if text_mode:
+                    self.stdout = io.TextIOWrapper(self.stdout,
+                            encoding=encoding, errors=errors)
+            if errread != -1:
+                self.stderr = io.open(errread, 'rb', bufsize)
+                if text_mode:
+                    self.stderr = io.TextIOWrapper(self.stderr,
+                            encoding=encoding, errors=errors)
+    
+            self._execute_child(args, executable, preexec_fn, close_fds,
+                                pass_fds, cwd, env,
+                                startupinfo, creationflags, shell,
+                                p2cread, p2cwrite,
+                                c2pread, c2pwrite,
+                                errread, errwrite,
+>                               restore_signals, start_new_session)
+
+c:\python36\Lib\subprocess.py:709: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <subprocess.Popen object at 0x03A17D90>
+args = 'geckodriver --port 50806', executable = None, preexec_fn = None
+close_fds = False, pass_fds = (), cwd = None
+env = environ({'ALLUSERSPROFILE': 'C:\\ProgramData', 'APPDATA': 'C:\\Users\\Ola\\AppData\\Roaming', 'ASL.LOG': 'Destination=...'_OLD_VIRTUAL_PROMPT': '$P$G', 'PYTEST_CURRENT_TEST': 'test_add_group.py::test_add_group::test_test_add_group (call)'})
+startupinfo = <subprocess.STARTUPINFO object at 0x03A17DD0>, creationflags = 0
+shell = False, p2cread = Handle(788), p2cwrite = 10, c2pread = -1
+c2pwrite = Handle(760), errread = -1, errwrite = Handle(840)
+unused_restore_signals = True, unused_start_new_session = False
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       unused_restore_signals, unused_start_new_session):
+        """Execute program (MS Windows version)"""
+    
+        assert not pass_fds, "pass_fds not supported on Windows."
+    
+        if not isinstance(args, str):
+            args = list2cmdline(args)
+    
+        # Process startup details
+        if startupinfo is None:
+            startupinfo = STARTUPINFO()
+        if -1 not in (p2cread, c2pwrite, errwrite):
+            startupinfo.dwFlags |= _winapi.STARTF_USESTDHANDLES
+            startupinfo.hStdInput = p2cread
+            startupinfo.hStdOutput = c2pwrite
+            startupinfo.hStdError = errwrite
+    
+        if shell:
+            startupinfo.dwFlags |= _winapi.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = _winapi.SW_HIDE
+            comspec = os.environ.get("COMSPEC", "cmd.exe")
+            args = '{} /c "{}"'.format (comspec, args)
+    
+        # Start the process
+        try:
+            hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                                     # no special security
+                                     None, None,
+                                     int(not close_fds),
+                                     creationflags,
+                                     env,
+                                     os.fspath(cwd) if cwd is not None else None,
+>                                    startupinfo)
+E                                    FileNotFoundError: [WinError 2] Nie mo¿na odnaleŸæ okreœlonego pliku
+
+c:\python36\Lib\subprocess.py:997: FileNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+self = <test_add_group.test_add_group testMethod=test_test_add_group>
+
+    def setUp(self):
+>       self.wd = WebDriver()
+
+test_add_group.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+env\lib\site-packages\selenium\webdriver\firefox\webdriver.py:152: in __init__
+    self.service.start()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <selenium.webdriver.firefox.service.Service object at 0x03A17C50>
+
+    def start(self):
+        """
+            Starts the Service.
+    
+            :Exceptions:
+             - WebDriverException : Raised either when it can't start the service
+               or when it can't connect to the service
+            """
+        try:
+            cmd = [self.path]
+            cmd.extend(self.command_line_args())
+            self.process = subprocess.Popen(cmd, env=self.env,
+                                            close_fds=platform.system() != 'Windows',
+                                            stdout=self.log_file,
+                                            stderr=self.log_file,
+                                            stdin=PIPE)
+        except TypeError:
+            raise
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+                raise WebDriverException(
+                    "'%s' executable needs to be in PATH. %s" % (
+>                       os.path.basename(self.path), self.start_error_message)
+E                       selenium.common.exceptions.WebDriverException: Message: 'geckodriver' executable needs to be in PATH.
+
+env\lib\site-packages\selenium\webdriver\common\service.py:83: WebDriverException
+========================== 1 failed in 1.89 seconds ===========================
